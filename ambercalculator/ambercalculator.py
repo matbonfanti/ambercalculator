@@ -34,7 +34,7 @@ import urllib.request  # Extensible library for opening URLs
 
 # imports of local modules
 
-import constants  # physical and mathematical constants
+import ambercalculator.constants as constants  # physical and mathematical constants
 
 # math libraries
 
@@ -644,60 +644,60 @@ class AmberInput:
 
         # OPTIONS FOR OPTIMIZATION
         if minimize:
-            self._input["imin"] = 1  # this is a minimization calculation
-            self._input["ntx"] = 1  # use only coordinate, no velocity restart
-            self._input["irest"] = 0
-            self._input["maxcyc"] = nrSteps  # maxcyc = max nr of opt cycles
-            self._input["ncyc"] = 500  # initially use steepest descent, after ncyc switch on conjugate gradient
+            self._input["imin"] = "1"  # this is a minimization calculation
+            self._input["ntx"] = "1"  # use only coordinate, no velocity restart
+            self._input["irest"] = "0"
+            self._input["maxcyc"] = str(nrSteps)  # maxcyc = max nr of opt cycles
+            self._input["ncyc"] = "500"  # initially use steepest descent, after ncyc switch on conjugate gradient
             if not usePBC:  # if there is no unit cell, do not use periodic boundary conditions
-                self._input["ntb"] = 0
+                self._input["ntb"] = "0"
             else:
-                self._input["ntb"] = 1
+                self._input["ntb"] = "1"
 
         # OPTIONS FOR MOLECULAR DYNAMICS
         else:
-            self._input["imin"] = 0  # this is a molecular dynamics run
+            self._input["imin"] = "0"  # this is a molecular dynamics run
             if usevelocity:
-                self._input["ntx"] = 5  # use initial velocity
-                self._input["irest"] = 1
+                self._input["ntx"] = "5"  # use initial velocity
+                self._input["irest"] = "1"
             else:
-                self._input["ntx"] = 1  # start from coordinates only
-                self._input["irest"] = 0
-            self._input["nstlim"] = nrSteps  # total nr of steps and ...
-            self._input["dt"] = deltaT  # ... timestep
+                self._input["ntx"] = "1"  # start from coordinates only
+                self._input["irest"] = "0"
+            self._input["nstlim"] = str(nrSteps)  # total nr of steps and ...
+            self._input["dt"] = str(deltaT)  # ... timestep
             if temperature is not None and temperature > 0.0:  # put thermostat
-                self._input["ntt"] = 3
-                self._input["gamma_ln"] = 2.
-                self._input["temp0"] = temperature
+                self._input["ntt"] = "3"
+                self._input["gamma_ln"] = "2."
+                self._input["temp0"] = "temperature"
             else:
-                self._input["ntt"] = 0
+                self._input["ntt"] = "0"
             if not usePBC:  # if there are no periodic boundary conditions, pressure makes no sense
-                self._input["ntb"] = 0
-                self._input["ntp"] = 0
+                self._input["ntb"] = "0"
+                self._input["ntp"] = "0"
             else:
                 if pressure is not None and pressure > 0.0:  # put barostat
-                    self._input["ntb"] = 2
-                    self._input["ntp"] = 1
-                    self._input["pres0"] = pressure
-                    self._input["taup"] = 2.
+                    self._input["ntb"] = "2"
+                    self._input["ntp"] = "1"
+                    self._input["pres0"] = str(pressure)
+                    self._input["taup"] = "2."
                 else:  # simulation with fixed periodic box
-                    self._input["ntb"] = 1
-                    self._input["ntp"] = 0
+                    self._input["ntb"] = "1"
+                    self._input["ntp"] = "0"
 
         # OTHER COMMON OPTIONS
-        self._input["cut"] = cutoff  # cutoff in potential terms evaluation
+        self._input["cut"] = str(cutoff)  # cutoff in potential terms evaluation
         if freezeH:
-            self._input["ntf"] = 2  # freeze bonds involving H atoms
-            self._input["ntc"] = 2
+            self._input["ntf"] = "2"  # freeze bonds involving H atoms
+            self._input["ntc"] = "2"
 
         # COMMON PRINT OPTIONS
-        self._input["ig"] = -1  # random seed generator for stochastic runs
-        self._input["ntxo"] = 2  # final restart file is in NETCDF format
-        self._input["ntpr"] = nprntsteps  # print energy info every nprntsteps steps
-        self._input["ioutfm"] = 1  # write coords, vel and forces every nprntsteps in NETCDF mdcrd
-        self._input["ntwx"] = nprntsteps
-        self._input["ntwv"] = -1
-        self._input["ntwf"] = -1
+        self._input["ig"] = "-1"  # random seed generator for stochastic runs
+        self._input["ntxo"] = "2"  # final restart file is in NETCDF format
+        self._input["ntpr"] = str(nprntsteps)  # print energy info every nprntsteps steps
+        self._input["ioutfm"] = "1"  # write coords, vel and forces every nprntsteps in NETCDF mdcrd
+        self._input["ntwx"] = str(nprntsteps)
+        self._input["ntwv"] = "-1"
+        self._input["ntwf"] = "-1"
 
     # ================================================================================
 
@@ -716,6 +716,15 @@ class AmberInput:
         """Change the value of a directive of the sander input file: if the key already
         exists, its value will be changed, otherwise, the new key will be added"""
         self._input[key] = value
+
+    # =============================================================================================================
+
+    def __eq__(self, other):
+        """Equality of two instance of the AmberInput class"""
+
+        if isinstance(other, AmberInput):
+            return self._input == other._input
+        return NotImplemented
 
     # ================================================================================
 
@@ -767,11 +776,11 @@ class AmberInput:
 
         # the following regular expression looks for
         # 1) expressions of the type keyword = "whatever there is inside the double quotes"
-        # 2) expressions of the type keyword = 'whatever there is inside the double quotes'
+        # 2) expressions of the type keyword = 'whatever there is inside the single quotes'
         # 3) expressions of the type keyword = value
         # making sure that what is recognized as the first (or second pattern) is not processed
         # as one of the following expressions
-        regexpr = '[\w-]+ *= *".+?"|[\w-]+ *= *\'.+?\'|[\w-]+ *= *[\w-]+'
+        regexpr = '[\w-]+ *= *".+?"|[\w-]+ *= *\'.+?\'|[\w-]+ *= *[^,]+'
         # save the keys and their values to the dictionary
         for r in re.findall(regexpr, cntrlsection):
             sanderdirectives[r.split("=")[0].strip()] = r.split("=")[1].strip()

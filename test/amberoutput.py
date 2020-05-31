@@ -3,8 +3,6 @@
 import unittest
 from ambercalculator import AmberOutput, AmberSnapshot
 import os
-import numpy as np
-import math
 import tarfile
 
 
@@ -125,21 +123,6 @@ class TestAmberOutput(unittest.TestCase):
         extractSnap = self.MDOutput.snapshot(54)
         # check that an AmberSnapshot instance was obtained
         self.assertEqual(type(extractSnap), AmberSnapshot)
-
-    # ================================================================================================================
-
-    #
-    # def test_modifycharges(self):
-    #     """Test the AmberTopology method that modify the list of charges in the topology file"""
-    #
-    #     # first define a new list of random charges to include in the topology
-    #     newcharges = list(np.random.uniform(-1., 1., len(self.charge)))
-    #     # and now create a copy of the test topology with the charges modified
-    #     copyTopology = self.testTopology.substitutecharges(newcharges)
-    #
-    #     # now compare the charges defined in copyTopology with the one that have been given to substitutecharges
-    #     self.assertTrue(np.allclose(np.array(copyTopology.charges),
-    #                                 np.array(newcharges), atol=1.e-06))
 
     # ================================================================================================================
 

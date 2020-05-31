@@ -852,7 +852,7 @@ class AmberTopology:
                 newtopotext += line + "\n"
                 newtopotext += "%FORMAT(5E16.8)" + "\n"
                 for i, ch in enumerate(newcharges):
-                    newtopotext += "{0:16.8e}".format(ch)
+                    newtopotext += "{0:16.8e}".format(ch / constants.MDcharge2au)
                     if (i + 1) % 5 == 0:
                         newtopotext += "\n"
                 if len(newcharges) % 5 != 0: newtopotext += "\n"

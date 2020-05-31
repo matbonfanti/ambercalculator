@@ -904,7 +904,7 @@ class AmberSnapshot:
         is not periodic (for the unit cell) and that velocity information is
         not present (for the velocities).
 
-        :param coords: input coordinates of the atoms [ [x_0, y_0, z_0] ... [x_N, y_N, z_N] ]
+        :param coords: input coordinates of the atoms [ [x_0, x_1 ..], [y_0, y_1 ..], [ z_0, z_1 ..] ]
         :param unitcell: unit cell definition, list of six floats, None if PBC are not present
         :param velocity: input velocities (same format as coords), None if not velocity is present
         """

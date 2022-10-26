@@ -26,9 +26,47 @@ class TestAmberOutput(unittest.TestCase):
         testpath = os.path.dirname(os.path.realpath(__file__))
         # extract output files from the archives _TEST_MD_ARCHIVE and _TEST_OPT_ARCHIVE
         with tarfile.open(os.path.join(testpath, cls._TEST_MD_ARCHIVE), "r:gz") as tar:
-            tar.extractall()
+            def is_within_directory(directory, target):
+                
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+            
+                prefix = os.path.commonprefix([abs_directory, abs_target])
+                
+                return prefix == abs_directory
+            
+            def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+            
+                for member in tar.getmembers():
+                    member_path = os.path.join(path, member.name)
+                    if not is_within_directory(path, member_path):
+                        raise Exception("Attempted Path Traversal in Tar File")
+            
+                tar.extractall(path, members, numeric_owner=numeric_owner) 
+                
+            
+            safe_extract(tar)
         with tarfile.open(os.path.join(testpath, cls._TEST_OPT_ARCHIVE), "r:gz") as tar:
-            tar.extractall()
+            def is_within_directory(directory, target):
+                
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+            
+                prefix = os.path.commonprefix([abs_directory, abs_target])
+                
+                return prefix == abs_directory
+            
+            def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+            
+                for member in tar.getmembers():
+                    member_path = os.path.join(path, member.name)
+                    if not is_within_directory(path, member_path):
+                        raise Exception("Attempted Path Traversal in Tar File")
+            
+                tar.extractall(path, members, numeric_owner=numeric_owner) 
+                
+            
+            safe_extract(tar)
 
         # now parse output files with the AmberOutput class
         # when disposing the instance objects the directories will be removed (storeFiles=False)
